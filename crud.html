@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRUD - Pacientes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Pacientes do Hospital</h1>
+
+    <!-- Formulário de Cadastro -->
+    <form id="form" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <input type="text" id="nome" placeholder="Nome"
+             class="col-span-1 border p-2 rounded" required>
+      <input type="text" id="cpf" placeholder="CPF"
+             class="col-span-1 border p-2 rounded" required>
+      <input type="text" id="telefone" placeholder="Telefone"
+             class="col-span-1 border p-2 rounded" required>
+      <button type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Adicionar
+      </button>
+    </form>
+
+    <!-- Tabela -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-300 divide-y divide-gray-200">
+        <thead class="bg-blue-600 text-white">
+          <tr>
+            <th class="px-4 py-2 text-left text-sm font-semibold">#</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Nome</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">CPF</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Telefone</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Data/Hora Cadastro</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-pacientes" class="bg-white divide-y divide-gray-200">
+          <!-- Pacientes adicionados dinamicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const tabela = document.getElementById('tabela-pacientes');
+    let pacientes = [];
+
+    function formatarDataHora(data) {
+      return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderTabela() {
+      tabela.innerHTML = '';
+      pacientes.forEach((paciente, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-4 py-2">${index + 1}</td>
+          <td class="px-4 py-2">
+            <span class="nome-view">${paciente.nome}</span>
+            <input class="nome-edit hidden border rounded px-2 py-1 w-full" type="text" value="${paciente.nome}">
+          </td>
+          <td class="px-4 py-2">
+            <span class="cpf-view">${paciente.cpf}</span>
+            <input class="cpf-edit hidden border rounded px-2 py-1 w-full" type="text" value="${paciente.cpf}">
+          </td>
+          <td class="px-4 py-2">
+            <span class="telefone-view">${paciente.telefone}</span>
+            <input class="telefone-edit hidden border rounded px-2 py-1 w-full" type="text" value="${paciente.telefone}">
+          </td>
+          <td class="px-4 py-2">${paciente.dataHora}</td>
+          <td class="px-4 py-2 space-x-2">
+            <button onclick="editarPaciente(${index}, this)"
+              class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded">Editar</button>
+            <button onclick="excluirPaciente(${index})"
+              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Excluir</button>
+            <button onclick="salvarEdicao(${index}, this)"
+              class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded hidden">Salvar</button>
+          </td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    function limparFormulario() {
+      form.reset();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value.trim();
+      const cpf = document.getElementById('cpf').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const dataHora = formatarDataHora(new Date());
+
+      if (!nome || !cpf || !telefone) return;
+
+      pacientes.push({ nome, cpf, telefone, dataHora });
+      renderTabela();
+      limparFormulario();
+    });
+
+    function excluirPaciente(index) {
+      if (confirm('Deseja realmente excluir este paciente?')) {
+        pacientes.splice(index, 1);
+        renderTabela();
+      }
+    }
+
+    function editarPaciente(index, btn) {
+      const tr = btn.closest('tr');
+      tr.querySelectorAll('.nome-view, .cpf-view, .telefone-view').forEach(el => el.classList.add('hidden'));
+      tr.querySelectorAll('.nome-edit, .cpf-edit, .telefone-edit').forEach(el => el.classList.remove('hidden'));
+      btn.classList.add('hidden');
+      tr.querySelector('button[onclick^="salvarEdicao"]').classList.remove('hidden');
+    }
+
+    function salvarEdicao(index, btn) {
+      const tr = btn.closest('tr');
+      const nomeEdit = tr.querySelector('.nome-edit').value.trim();
+      const cpfEdit = tr.querySelector('.cpf-edit').value.trim();
+      const telefoneEdit = tr.querySelector('.telefone-edit').value.trim();
+
+      if (!nomeEdit || !cpfEdit || !telefoneEdit) return;
+
+      pacientes[index].nome = nomeEdit;
+      pacientes[index].cpf = cpfEdit;
+      pacientes[index].telefone = telefoneEdit;
+
+      renderTabela();
+    }
+
+    // Dados de exemplo (opcional)
+    pacientes = [
+      { nome: "Ana Paula", cpf: "123.456.789-00", telefone: "(11) 91234-5678", dataHora: formatarDataHora(new Date()) },
+      { nome: "Carlos Mendes", cpf: "987.654.321-00", telefone: "(21) 99876-5432", dataHora: formatarDataHora(new Date()) }
+    ];
+    renderTabela();
+  </script>
+
+</body>
+</html>
