@@ -85,7 +85,7 @@
                 tr.dataset.id = agendamento.id;
                 tr.innerHTML = `
           <td class="px-4 py-2">${index + 1}</td>
-          <td class="px-4 py-2">${agendamento.nome}</td>
+          <td class="px-4 py-2">${agendamento.paciente_nome}</td>
           <td class="px-4 py-2">${agendamento.data}</td>
           <td class="px-4 py-2">${agendamento.hora}</td>
           <td class="px-4 py-2 space-x-2">
@@ -98,6 +98,7 @@
                 tabela.appendChild(tr);
             });
         }
+
 
         // Buscar agendamentos
         async function buscarAgendamentos() {
