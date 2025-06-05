@@ -11,7 +11,13 @@
 <body class="bg-gray-100 min-h-screen p-8">
 
   <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Pacientes da Clinica</h1>
+    <!-- Título e botão de Agendamento -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Pacientes da Clínica</h1>
+      <a href="agendamento.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        Ir para Agendamento
+      </a>
+    </div>
 
     <!-- Formulário de Cadastro -->
     <form id="form" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -55,13 +61,10 @@
       const isoData = data.includes('T') ? data : data.replace(' ', 'T');
       const d = new Date(isoData);
 
-      console.log('formatarDataHora:', { data, isoData, d, isValid: !isNaN(d) });
-
       if (isNaN(d)) return 'Data inválida';
 
       return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
-
 
     // Renderiza a tabela com dados do backend
     function renderTabela(pacientes) {
@@ -101,7 +104,6 @@
       try {
         const res = await fetch(API_URL);
         const pacientes = await res.json();
-        console.log(pacientes);
         renderTabela(pacientes);
       } catch (error) {
         alert('Erro ao buscar pacientes');

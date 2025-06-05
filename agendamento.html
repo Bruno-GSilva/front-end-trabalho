@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamento - Clínica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-8">
+
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <!-- Título e botão de voltar -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Agendamentos</h1>
+      <a href="index.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        Voltar para Pacientes
+      </a>
+    </div>
+
+    <!-- Formulário de Agendamento -->
+    <form id="form" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <select id="paciente" class="col-span-1 border p-2 rounded" required>
+        <option value="">Selecione o paciente</option>
+        <!-- Opções serão preenchidas dinamicamente -->
+      </select>
+      <input type="date" id="data" class="col-span-1 border p-2 rounded" required />
+      <input type="time" id="hora" class="col-span-1 border p-2 rounded" required />
+      <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+        Agendar
+      </button>
+    </form>
+
+    <!-- Tabela de Agendamentos -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-300 divide-y divide-gray-200">
+        <thead class="bg-green-600 text-white">
+          <tr>
+            <th class="px-4 py-2 text-left text-sm font-semibold">#</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Paciente</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Data</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Hora</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-agendamentos" class="bg-white divide-y divide-gray-200">
+          <!-- Agendamentos adicionados dinamicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_AGENDAMENTOS = 'https://back-end-trabalho-production.up.railway.app/agendamentos';
+    const API_PACIENTES = 'https://back-end-trabalho-production.up.railway.app/pacientes';
+
+    const form = document.getElementById('form');
+    const tabela = document.getElementById('tabela-agendamentos');
+    const selectPaciente = document.getElementById('paciente');
+
+    // Carregar pacientes no select
+    async function carregarPacientes() {
+      try {
+        const res = await fetch(API_PACIENTES);
+        const pacientes = await res.json();
+        pacientes.forEach(paciente => {
+          const option = document.createElement('option');
+          option.value = paciente.nome;
+          option.textContent = paciente.nome;
+          selectPaciente.appendChild(option);
+        });
+      } catch (error) {
+        alert('Erro ao carregar pacientes');
+        console.error(error);
+      }
+    }
+
+    // Renderizar a tabela de agendamentos
+    function renderTabela(agendamentos) {
+      tabela.innerHTML = '';
+      agendamentos.forEach((agendamento, index) => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = agendamento.id;
+        tr.innerHTML = `
+          <td class="px-4 py-2">${index + 1}</td>
+          <td class="px-4 py-2">${agendamento.nome}</td>
+          <td class="px-4 py-2">${agendamento.data}</td>
+          <td class="px-4 py-2">${agendamento.hora}</td>
+          <td class="px-4 py-2 space-x-2">
+            <button onclick="excluirAgendamento(${agendamento.id})"
+              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+              Excluir
+            </button>
+          </td>
+        `;
+        tabela.appendChild(tr);
+      });
+    }
+
+    // Buscar agendamentos
+    async function buscarAgendamentos() {
+      try {
+        const res = await fetch(API_AGENDAMENTOS);
+        const agendamentos = await res.json();
+        renderTabela(agendamentos);
+      } catch (error) {
+        alert('Erro ao buscar agendamentos');
+        console.error(error);
+      }
+    }
+
+    // Adicionar novo agendamento
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = selectPaciente.value;
+      const data = document.getElementById('data').value;
+      const hora = document.getElementById('hora').value;
+
+      if (!nome || !data || !hora) return;
+
+      try {
+        const res = await fetch(API_AGENDAMENTOS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, data, hora })
+        });
+
+        if (!res.ok) throw new Error('Erro ao adicionar agendamento');
+
+        form.reset();
+        buscarAgendamentos();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    // Excluir agendamento
+    async function excluirAgendamento(id) {
+      if (!confirm('Deseja realmente excluir este agendamento?')) return;
+
+      try {
+        const res = await fetch(`${API_AGENDAMENTOS}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Erro ao excluir agendamento');
+
+        buscarAgendamentos();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Inicialização
+    carregarPacientes();
+    buscarAgendamentos();
+  </script>
+
+</body>
+
+</html>
