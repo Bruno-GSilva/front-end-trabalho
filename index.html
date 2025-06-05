@@ -22,12 +22,28 @@
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition duration-200">
       Entrar
     </button>
+    
+    <p id="message" class="mt-4 text-center font-semibold"></p>
+
   </div>
 
   <script>
+    
     function login() {
-      // Redireciona diretamente sem validação
-      window.location.href = "crud.html";
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const message = document.getElementById('message');
+
+      if (username === 'adm' && password === 'adm') {
+        message.classList.remove('text-red-600');
+        message.classList.add('text-green-600');
+        message.textContent = 'Login efetuado com sucesso!';
+        window.location.href = "crud.html";
+      } else {
+        message.classList.remove('text-green-600');
+        message.classList.add('text-red-600');
+        message.textContent = 'Login ou senha incorretos!';
+      }
     }
   </script>
 

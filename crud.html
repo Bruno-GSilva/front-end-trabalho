@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CRUD - Pacientes</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 min-h-screen p-8">
 
   <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
@@ -13,14 +15,10 @@
 
     <!-- Formulário de Cadastro -->
     <form id="form" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <input type="text" id="nome" placeholder="Nome"
-             class="col-span-1 border p-2 rounded" required />
-      <input type="text" id="cpf" placeholder="CPF"
-             class="col-span-1 border p-2 rounded" required />
-      <input type="text" id="telefone" placeholder="Telefone"
-             class="col-span-1 border p-2 rounded" required />
-      <button type="submit"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+      <input type="text" id="nome" placeholder="Nome" class="col-span-1 border p-2 rounded" required />
+      <input type="text" id="cpf" placeholder="CPF" class="col-span-1 border p-2 rounded" required />
+      <input type="text" id="telefone" placeholder="Telefone" class="col-span-1 border p-2 rounded" required />
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
         Adicionar
       </button>
     </form>
@@ -52,8 +50,18 @@
     const tabela = document.getElementById('tabela-pacientes');
 
     function formatarDataHora(data) {
-      return new Date(data).toLocaleDateString('pt-BR') + ' ' + new Date(data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      if (!data) return 'Data inválida';
+
+      const isoData = data.includes('T') ? data : data.replace(' ', 'T');
+      const d = new Date(isoData);
+
+      console.log('formatarDataHora:', { data, isoData, d, isValid: !isNaN(d) });
+
+      if (isNaN(d)) return 'Data inválida';
+
+      return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
+
 
     // Renderiza a tabela com dados do backend
     function renderTabela(pacientes) {
@@ -75,7 +83,7 @@
             <span class="telefone-view">${paciente.telefone}</span>
             <input class="telefone-edit hidden border rounded px-2 py-1 w-full" type="text" value="${paciente.telefone}">
           </td>
-          <td class="px-4 py-2">${formatarDataHora(paciente.dataHora)}</td>
+          <td class="px-4 py-2">${formatarDataHora(paciente.datahora)}</td>
           <td class="px-4 py-2 space-x-2">
             <button onclick="editarPaciente(this)"
               class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded">Editar</button>
@@ -93,6 +101,7 @@
       try {
         const res = await fetch(API_URL);
         const pacientes = await res.json();
+        console.log(pacientes);
         renderTabela(pacientes);
       } catch (error) {
         alert('Erro ao buscar pacientes');
@@ -173,4 +182,5 @@
     buscarPacientes();
   </script>
 </body>
+
 </html>
