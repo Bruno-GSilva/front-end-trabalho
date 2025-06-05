@@ -9,7 +9,7 @@
 <body class="bg-gray-100 min-h-screen p-8">
 
   <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Pacientes do Hospital</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Pacientes da Clinica</h1>
 
     <!-- Formulário de Cadastro -->
     <form id="form" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -89,7 +89,6 @@
       });
     }
 
-    // Busca os pacientes do backend e renderiza
     async function buscarPacientes() {
       try {
         const res = await fetch(API_URL);
@@ -126,7 +125,6 @@
       }
     });
 
-    // Editar linha (mostrar inputs)
     function editarPaciente(btn) {
       const tr = btn.closest('tr');
       tr.querySelectorAll('.nome-view, .cpf-view, .telefone-view').forEach(el => el.classList.add('hidden'));
@@ -135,7 +133,6 @@
       tr.querySelector('button[onclick="salvarEdicao(this)"]').classList.remove('hidden');
     }
 
-    // Salvar edição (PUT)
     async function salvarEdicao(btn) {
       const tr = btn.closest('tr');
       const id = tr.dataset.id;
@@ -159,7 +156,6 @@
       }
     }
 
-    // Excluir paciente (DELETE)
     async function excluirPaciente(id) {
       if (!confirm('Deseja realmente excluir este paciente?')) return;
 
